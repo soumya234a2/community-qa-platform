@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Ask a question{% endblock %}
+{% block content %}
+<h1>Ask a question</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+<form method="post" class="form narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label for="community">Community</label>
+  <select id="community" name="community" required>
+    <option value="">Choose one</option>
+    {% for c in communities %}
+      <option value="{{ c.name }}" {{ 'selected' if form.community == c.name }}>c/{{ c.name }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="title">Title</label>
+  <input id="title" name="title" maxlength="200" required value="{{ form.title }}" placeholder="What are you trying to do, and what goes wrong?">
+
+  <label for="body">Details</label>
+  <textarea id="body" name="body" rows="10" required>{{ form.body }}</textarea>
+  <p class="hint">Include what you tried and the exact error. Wrap code in triple backticks.</p>
+
+  <label for="tags">Tags</label>
+  <input id="tags" name="tags" value="{{ form.tags }}" placeholder="python flask mysql (up to 5)">
+
+  <button class="btn">Post question</button>
+</form>
+{% endblock %}

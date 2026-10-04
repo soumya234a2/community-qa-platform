@@ -1,0 +1,66 @@
+{% macro vote_box(kind, id, score, mine) %}
+<form class="votes" method="post" action="{{ url_for('vote') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="type" value="{{ kind }}">
+  <input type="hidden" name="id" value="{{ id }}">
+  <button name="value" value="1" class="vbtn {{ 'on-up' if mine == 1 }}" aria-label="Upvote" aria-pressed="{{ 'true' if mine == 1 else 'false' }}">&#9650;</button>
+  <span class="score" title="Score">{{ score|int }}</span>
+  <button name="value" value="-1" class="vbtn {{ 'on-down' if mine == -1 }}" aria-label="Downvote" aria-pressed="{{ 'true' if mine == -1 else 'false' }}">&#9660;</button>
+</form>
+{% endmacro %}
+
+{% macro tag_list(tags) %}
+{% if tags %}<span class="tags">{% for t in tags %}<a class="tag" href="{{ url_for('index', tag=t) }}">{{ t }}</a>{% endfor %}</span>{% endif %}
+{% endmacro %}
+
+{% macro question_row(q) %}
+<article class="row">
+  <div class="stats">
+    <span class="stat"><b>{{ q.score|int }}</b> votes</span>
+    <span class="stat {{ 'solved' if q.accepted_answer_id }}"><b>{{ q.answer_count }}</b> answers</span>
+  </div>
+  <div class="row-main">
+    <h2><a href="{{ url_for('question', question_id=q.id) }}">{{ q.title }}</a></h2>
+    <p class="meta">
+      <a href="{{ url_for('community_page', name=q.community) }}">c/{{ q.community }}</a>
+      by <a href="{{ url_for('profile', username=q.username) }}">{{ q.username }}</a>, {{ q.created_at|ago }}
+    </p>
+    {{ tag_list(q.tags) }}
+  </div>
+</article>
+{% endmacro %}
+
+{% macro comment_section(kind, id, comments) %}
+<div class="comments">
+  {% for c in comments %}
+  <p class="comment" id="comment-{{ c.id }}">
+    {{ c.body }}
+    <span class="meta">&ndash; <a href="{{ url_for('profile', username=c.username) }}">{{ c.username }}</a>, {{ c.created_at|ago }}</span>
+    {% if current_user and current_user.id == c.user_id %}
+    <form class="inline" method="post" action="{{ url_for('delete_comment', comment_id=c.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="linklike danger" aria-label="Delete comment">delete</button>
+    </form>
+    {% endif %}
+  </p>
+  {% endfor %}
+  {% if current_user %}
+  <details class="comment-add">
+    <summary>Add a comment</summary>
+    <form method="post" action="{{ url_for('add_comment') }}" class="comment-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="type" value="{{ kind }}">
+      <input type="hidden" name="id" value="{{ id }}">
+      <label class="sr-only" for="comment-{{ kind }}-{{ id }}">Comment</label>
+      <textarea id="comment-{{ kind }}-{{ id }}" name="body" rows="2" minlength="2" maxlength="500" required data-counter></textarea>
+      <div class="comment-actions">
+        <button class="btn small">Post comment</button>
+        <span class="counter" aria-live="polite"></span>
+      </div>
+    </form>
+  </details>
+  {% else %}
+  <p class="meta"><a href="{{ url_for('login', next=request.path) }}">Log in</a> to comment.</p>
+  {% endif %}
+</div>
+{% endmacro %}

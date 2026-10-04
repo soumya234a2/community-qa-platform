@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Communities{% endblock %}
+{% block content %}
+<div class="head">
+  <h1>Communities</h1>
+  {% if current_user %}<a class="btn" href="{{ url_for('new_community') }}">Create a community</a>{% endif %}
+</div>
+{% for c in communities %}
+<article class="row">
+  <div class="stats"><span class="stat"><b>{{ c.posts }}</b> questions</span></div>
+  <div class="row-main">
+    <h2><a href="{{ url_for('community_page', name=c.name) }}">c/{{ c.name }}</a></h2>
+    <p class="muted">{{ c.description or 'No description yet.' }}</p>
+  </div>
+</article>
+{% endfor %}
+{% endblock %}

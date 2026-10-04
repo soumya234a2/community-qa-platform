@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Create a community{% endblock %}
+{% block content %}
+<h1>Create a community</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+<form method="post" class="form narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="name">Name</label>
+  <input id="name" name="name" required maxlength="30" pattern="[a-z0-9_\-]{3,30}" placeholder="data-science">
+  <p class="hint">Lowercase letters, numbers, - or _. This becomes c/name.</p>
+  <label for="description">Description</label>
+  <input id="description" name="description" maxlength="255" placeholder="What is this community about?">
+  <button class="btn">Create community</button>
+</form>
+{% endblock %}

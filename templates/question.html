@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_macros.html" import vote_box, tag_list, comment_section with context %}
+{% block title %}{{ q.title }}{% endblock %}
+{% block content %}
+<article class="post">
+  {{ vote_box('question', q.id, q.score, my_votes.get('question-' ~ q.id, 0)) }}
+  <div class="post-main">
+    <h1>{{ q.title }}</h1>
+    <p class="meta">
+      <a href="{{ url_for('community_page', name=q.community) }}">c/{{ q.community }}</a>
+      by <a href="{{ url_for('profile', username=q.username) }}">{{ q.username }}</a>, {{ q.created_at|ago }}
+    </p>
+    <div class="body">{{ q.body|render_body }}</div>
+    {{ tag_list(q.tags) }}
+    {{ comment_section('question', q.id, comments.get('question-' ~ q.id, [])) }}
+    {% if current_user and current_user.id == q.user_id %}
+      <form method="post" action="{{ url_for('delete_question', question_id=q.id) }}" class="inline" onsubmit="return confirm('Delete this question and all its answers?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="linklike danger">Delete question</button>
+      </form>
+    {% endif %}
+  </div>
+</article>
+
+<h2 id="answers" class="section-title">{{ answers|length }} answer{{ '' if answers|length == 1 else 's' }}</h2>
+
+{% for a in answers %}
+<article class="post answer {{ 'accepted' if a.id == q.accepted_answer_id }}" id="answer-{{ a.id }}">
+  {{ vote_box('answer', a.id, a.score, my_votes.get('answer-' ~ a.id, 0)) }}
+  <div class="post-main">
+    {% if a.id == q.accepted_answer_id %}<p class="badge">Accepted answer</p>{% endif %}
+    <div class="body">{{ a.body|render_body }}</div>
+    <p class="meta">
+      <a href="{{ url_for('profile', username=a.username) }}">{{ a.username }}</a>, {{ a.created_at|ago }}
+      {% if current_user and current_user.id == q.user_id %}
+        <form method="post" action="{{ url_for('accept_answer', question_id=q.id, answer_id=a.id) }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="linklike">{{ 'Remove accepted mark' if a.id == q.accepted_answer_id else 'Accept this answer' }}</button>
+        </form>
+      {% endif %}
+    </p>
+    {{ comment_section('answer', a.id, comments.get('answer-' ~ a.id, [])) }}
+  </div>
+</article>
+{% endfor %}
+
+<h2 class="section-title">Your answer</h2>
+{% if current_user %}
+<form method="post" action="{{ url_for('post_answer', question_id=q.id) }}" class="form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="body">Share what worked. Wrap code in triple backticks.</label>
+  <textarea id="body" name="body" rows="8" required minlength="10"></textarea>
+  <button class="btn">Post answer</button>
+</form>
+{% else %}
+<p><a href="{{ url_for('login', next=request.path) }}">Log in</a> or <a href="{{ url_for('register') }}">sign up</a> to answer.</p>
+{% endif %}
+{% endblock %}

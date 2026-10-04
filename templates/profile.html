@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import question_row with context %}
+{% block title %}{{ profile_user.username }}{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>{{ profile_user.username }}</h1>
+    <p class="muted">Member for {{ profile_user.created_at|ago|replace(' ago', '') }}</p>
+  </div>
+  <p class="rep"><b>{{ reputation }}</b> reputation</p>
+</div>
+
+<h2 class="section-title">Questions ({{ questions|length }})</h2>
+{% for q in questions %}{{ question_row(q) }}{% else %}<p class="muted">No questions yet.</p>{% endfor %}
+
+<h2 class="section-title">Answers ({{ answers|length }})</h2>
+{% for a in answers %}
+<article class="row">
+  <div class="stats"><span class="stat {{ 'solved' if a.accepted }}">{{ 'Accepted' if a.accepted else 'Answer' }}</span></div>
+  <div class="row-main">
+    <h2><a href="{{ url_for('question', question_id=a.question_id) }}#answer-{{ a.id }}">{{ a.title }}</a></h2>
+    <p class="meta">{{ a.created_at|ago }}</p>
+  </div>
+</article>
+{% else %}<p class="muted">No answers yet.</p>{% endfor %}
+{% endblock %}

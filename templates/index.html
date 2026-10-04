@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from "_macros.html" import question_row with context %}
+{% block title %}{% if community %}c/{{ community.name }}{% else %}Questions{% endif %}{% endblock %}
+{% block content %}
+<div class="layout">
+  <section>
+    <div class="head">
+      <div>
+        {% if community %}
+          <h1>c/{{ community.name }}</h1>
+          <p class="muted">{{ community.description }}</p>
+        {% elif search %}
+          <h1>Results for "{{ search }}"</h1>
+        {% elif tag %}
+          <h1>Questions tagged {{ tag }}</h1>
+        {% else %}
+          <h1>All questions</h1>
+        {% endif %}
+      </div>
+      {% if community %}
+        <a class="btn" href="{{ url_for('ask', community=community.name) }}">Ask in this community</a>
+      {% endif %}
+    </div>
+
+    <div class="tabs" role="tablist">
+      {% for key, label in (('new', 'Newest'), ('top', 'Top'), ('unanswered', 'Unanswered')) %}
+        <a href="{{ sort_links[key] }}" class="{{ 'active' if sort == key }}">{{ label }}</a>
+      {% endfor %}
+    </div>
+
+    {% for q in questions %}
+      {{ question_row(q) }}
+    {% else %}
+      <div class="empty">
+        <p>No questions here yet.</p>
+        <a class="btn" href="{{ url_for('ask') }}">Ask the first one</a>
+      </div>
+    {% endfor %}
+  </section>
+
+  <aside class="side">
+    <h3>Communities</h3>
+    <ul class="plain">
+      {% for c in communities %}
+        <li><a href="{{ url_for('community_page', name=c.name) }}">c/{{ c.name }}</a> <span class="muted">{{ c.posts }}</span></li>
+      {% endfor %}
+    </ul>
+    <p><a href="{{ url_for('communities') }}">Browse all communities</a></p>
+    {% if popular_tags %}
+      <h3>Popular tags</h3>
+      <p class="tags">{% for t in popular_tags %}<a class="tag" href="{{ url_for('index', tag=t.name) }}">{{ t.name }}</a>{% endfor %}</p>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

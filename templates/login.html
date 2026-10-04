@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<h1>Log in</h1>
+{% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+<form method="post" class="form narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="identifier">Username or email</label>
+  <input id="identifier" name="identifier" required autocomplete="username" value="{{ identifier }}">
+  <label for="password">Password</label>
+  <input id="password" name="password" type="password" required autocomplete="current-password">
+  <button class="btn">Log in</button>
+  <p class="hint">New here? <a href="{{ url_for('register') }}">Create an account</a>.</p>
+</form>
+{% endblock %}
