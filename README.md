@@ -1,4 +1,4 @@
-# Campfire - Community Q&A Platform
+#  Community Q&A Platform
 
 A Stack Overflow style Q&A site with Reddit style communities, built with **Flask** and **MySQL**.
 
